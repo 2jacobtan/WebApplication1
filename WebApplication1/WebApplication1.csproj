@@ -7,8 +7,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-    <!-- below added by Jacob -->
+
     <PackageReference Include="Localization.SqlLocalizer" Version="2.0.6" />
-    </ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.0" />
+    
+  </ItemGroup>
 
 </Project>

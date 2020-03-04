@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-//using Localization.SqlLocalizer.DbStringLocalizer; //added by Jacob
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +9,15 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+//below added by Jacob
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using Microsoft.Extensions.Options;
+using Localization.SqlLocalizer.DbStringLocalizer;
+//using Swashbuckle.AspNetCore.Swagger;
+using System.Reflection;
+//using Microsoft.Extensions.Hosting; //clashes with Microsoft.AspNetCore.Hosting
 
 namespace WebApplication1
 {
@@ -34,11 +42,63 @@ namespace WebApplication1
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            //below added by Jacob
+
+            // init database for localization
+            var sqlConnectionString = Configuration["DbStringLocalizer:ConnectionString"];
+
+            services.AddDbContext<LocalizationModelContext>(options =>
+                    options.UseSqlite(
+                            sqlConnectionString,
+                            b => b.MigrationsAssembly("WebApplication1")
+                    ),
+                    ServiceLifetime.Singleton,
+                    ServiceLifetime.Singleton
+            );
+
+            var useTypeFullNames = true;
+            var useOnlyPropertyNames = false;
+            var returnOnlyKeyIfNotFound = false;
+            var _createNewRecordWhenLocalisedStringDoesNotExist = true; //true only for development
+
+        // Requires that LocalizationModelContext is defined
+        services.AddSqlLocalization(options => options.UseSettings(useTypeFullNames, useOnlyPropertyNames, returnOnlyKeyIfNotFound, _createNewRecordWhenLocalisedStringDoesNotExist));
+            // services.AddSqlLocalization(options => options.ReturnOnlyKeyIfNotFound = true);
+            // services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services.AddMvc()
+                    .AddViewLocalization()
+                    .AddDataAnnotationsLocalization();
+
+            services.AddScoped<LanguageActionFilter>();
+
+            services.Configure<RequestLocalizationOptions>(
+                    options =>
+                    {
+                        var supportedCultures = new List<CultureInfo>
+                                    {
+                                        new CultureInfo("en-US"),
+                                        new CultureInfo("de-CH"),
+                                        new CultureInfo("fr-CH"),
+                                        new CultureInfo("it-CH")
+                                    };
+
+                        options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+                        options.SupportedCultures = supportedCultures;
+                        options.SupportedUICultures = supportedCultures;
+                    });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            //added by Jacob
+            var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(locOptions.Value);
+
+
+            //below auto-generated
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,6 +108,7 @@ namespace WebApplication1
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
