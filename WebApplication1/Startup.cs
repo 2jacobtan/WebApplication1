@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Microsoft.Extensions.Options;
 using Localization.SqlLocalizer.DbStringLocalizer;
-//using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 //using Microsoft.Extensions.Hosting; //clashes with Microsoft.AspNetCore.Hosting
 
@@ -56,19 +56,20 @@ namespace WebApplication1
                     ServiceLifetime.Singleton
             );
 
-            var useTypeFullNames = true;
+            var useTypeFullNames = false;
             var useOnlyPropertyNames = false;
             var returnOnlyKeyIfNotFound = false;
-            var _createNewRecordWhenLocalisedStringDoesNotExist = true; //true only for development
+            var _createNewRecordWhenLocalisedStringDoesNotExist = false; //true only for development
 
         // Requires that LocalizationModelContext is defined
         services.AddSqlLocalization(options => options.UseSettings(useTypeFullNames, useOnlyPropertyNames, returnOnlyKeyIfNotFound, _createNewRecordWhenLocalisedStringDoesNotExist));
             // services.AddSqlLocalization(options => options.ReturnOnlyKeyIfNotFound = true);
             // services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddMvc()
-                    .AddViewLocalization()
-                    .AddDataAnnotationsLocalization();
+            // for netcoreapp2.1
+            //services.AddMvc()
+            //        .AddViewLocalization()
+            //        .AddDataAnnotationsLocalization();
 
             services.AddScoped<LanguageActionFilter>();
 
@@ -88,6 +89,27 @@ namespace WebApplication1
                         options.SupportedUICultures = supportedCultures;
                     });
 
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddViewLocalization()
+                .AddDataAnnotationsLocalization(options =>
+                {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    {
+                        var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
+                        return factory.Create("SharedResource", assemblyName.Name);
+                    };
+                });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "API",
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -114,11 +136,20 @@ namespace WebApplication1
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvc(routes =>
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
             });
         }
     }

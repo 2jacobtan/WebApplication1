@@ -2,10 +2,36 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Hello, world! The time on the server is @DateTime.Now</p>
-</div>
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Hello, world! The time on the server is @DateTime.Now</p>
+        <a href="https://localhost:44343/api/about">Default page https://localhost:44343/api/about</a>
+
+        <br />
+        <br />
+
+        <h1 class="display-4">Other languages</h1>
+
+        <a href="https://localhost:44343/api/about?culture=de-CH">German page https://localhost:44343/api/about?culture=de-CH</a>
+
+        <br />
+        <br />
+
+        <a href="https://localhost:44343/api/about?culture=en-US">English page https://localhost:44343/api/about?culture=en-US</a>
+
+        <br />
+        <br />
+
+        <a href="https://localhost:44343/api/about?culture=fr-CH">French page https://localhost:44343/api/about?culture=fr-CH</a>
+
+        <br />
+        <br />
+
+        <a href="https://localhost:44343/api/about?culture=it-CH">Italian page https://localhost:44343/api/about?culture=it-CH</a>
+
+        <br />
+        <br />
+    </div>
 
 <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
     <ol class="carousel-indicators">

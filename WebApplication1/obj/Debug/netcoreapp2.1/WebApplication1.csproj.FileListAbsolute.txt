@@ -33,3 +33,4 @@ C:\Users\1al2o\source\repos\WebApplication1\WebApplication1\obj\Debug\netcoreapp
 C:\Users\1al2o\source\repos\WebApplication1\WebApplication1\obj\Debug\netcoreapp2.1\WebApplication1.pdb
 C:\Users\1al2o\source\repos\WebApplication1\WebApplication1\obj\Debug\netcoreapp2.1\WebApplication1.csproj.CopyComplete
 C:\Users\1al2o\source\repos\WebApplication1\WebApplication1\bin\Debug\netcoreapp2.1\appsettings (original auto-generated).json
+C:\Users\1al2o\source\repos\WebApplication1\WebApplication1\bin\Debug\netcoreapp2.1\web.config
